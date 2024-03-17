@@ -11,11 +11,7 @@ import { Input } from "./input.component";
 import { twJoin } from "tailwind-merge";
 import { Button } from "../Buttons/button.component";
 import { Textarea } from "./textarea.component";
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { todoAbi } from "@/abis";
-import { getAddress, parseEther } from "viem";
-import { wagmiClient } from "@/configs";
-import toast from "react-hot-toast";
+import { useTodoCRUDOperations } from "@/hooks";
 
 type TodoFormProps = {
   address: string;
@@ -33,55 +29,21 @@ export const TodoForm = ({
   className,
   setConfirming,
 }: TodoFormProps) => {
-  const { writeContract, data: hash } = useWriteContract({
-    config: wagmiClient,
-  });
-
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForTransactionReceipt({
-      hash: hash!,
-    });
-
-  useEffect(() => {
-    if (isConfirmed) {
-      onSuccess?.();
-    }
-  }, [isConfirmed]);
-
   const [todoFormData, setTodoFormData] = useState<TodoData>({
     title: "",
     description: "",
   });
-
-  const [isSending, setisSending] = useState(false);
-  const createTodo = () => {
-    setisSending(true);
-    writeContract(
-      {
-        abi: todoAbi,
-        address: getAddress(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!),
-        functionName: "createTask",
-        args: [todoFormData.title, todoFormData.description || ""],
-        value: parseEther("1", "gwei"),
-      },
-      {
-        onSuccess: () => {
-          toast.loading("Todo Created! Waiting for confirmation.", {
-            id: "loading1",
-          });
-          setisSending(false);
-          setTodoFormData({ title: "", description: "" });
-          if (setConfirming) {
-            setConfirming(true);
-          }
-        },
-        onError: () => {
-          setisSending(false);
-          toast.error("Transaction Failed! Try Again.");
-        },
-      }
-    );
-  };
+  const { isConfirmed, isSending, createTodo, confirming } =
+    useTodoCRUDOperations();
+  useEffect(() => {
+    if (isConfirmed) {
+      onSuccess?.();
+      setTodoFormData({ title: "", description: "" });
+    }
+    if (confirming) {
+      setConfirming?.(true);
+    }
+  }, [isConfirmed, confirming]);
 
   return (
     <form className={twJoin("w-full p-5 rounded-md bg-[#1f1f1f]", className)}>
@@ -114,7 +76,12 @@ export const TodoForm = ({
         color="#00b21b"
         disabled={isSending}
         loading={isSending}
-        onClick={createTodo}
+        onClick={() => {
+          createTodo({
+            title: todoFormData.title!,
+            description: todoFormData.description!,
+          });
+        }}
         block
         className="w-full"
       >

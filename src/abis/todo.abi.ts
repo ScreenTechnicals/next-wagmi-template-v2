@@ -37,29 +37,6 @@ export const todoAbi = [
         name: "_id",
         type: "uint256",
       },
-      {
-        internalType: "string",
-        name: "_title",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "_desc",
-        type: "string",
-      },
-    ],
-    name: "updateTask",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_id",
-        type: "uint256",
-      },
     ],
     name: "getTask",
     outputs: [
@@ -127,6 +104,29 @@ export const todoAbi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_id",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "_title",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "_desc",
+        type: "string",
+      },
+    ],
+    name: "updateTask",
+    outputs: [],
+    stateMutability: "payable",
     type: "function",
   },
 ] as const;

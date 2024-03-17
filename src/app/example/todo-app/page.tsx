@@ -7,6 +7,7 @@ import { Loading, TodoCard, TodoForm } from "@/components";
 import { todoAbi } from "@/abis";
 import { getAddress } from "viem";
 import toast from "react-hot-toast";
+import { useTodoCRUDOperations } from "@/hooks";
 
 const TodoAppPage = () => {
   const { address, chain, isConnected, isReconnecting, isConnecting } =
@@ -17,20 +18,24 @@ const TodoAppPage = () => {
     address: address,
   });
 
-  const {
-    data,
-    isLoading: isLoading2,
-    refetch,
-  } = useReadContract({
-    abi: todoAbi,
-    address: getAddress(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!),
-    functionName: "getTasks",
-    account: getAddress(address!),
-    query: {
-      staleTime: 0,
-      enabled: isConnected,
-    },
-  });
+  const { useGetTodos } = useTodoCRUDOperations();
+
+  // const {
+  //   data,
+  //   isLoading: isLoading2,
+  //   refetch,
+  // } = useReadContract({
+  //   abi: todoAbi,
+  //   address: getAddress(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!),
+  //   functionName: "getTasks",
+  //   account: address && getAddress(address),
+  //   query: {
+  //     staleTime: 0,
+  //     enabled: isConnected,
+  //   },
+  // });
+
+  const { data, isLoading: isLoading2, refetch } = useGetTodos();
 
   const [confirming, setConfirming] = useState(false);
 
@@ -94,17 +99,17 @@ const TodoAppPage = () => {
                     />
                   );
                 })
-              ) : (
+              ) : !confirming ? (
                 <p className="text-center">No Data Found</p>
-              )}
-              <div className="flex items-center justify-center">
-                {confirming && (
-                  <p className="text-center text-gray-400 animate-bounce">
-                    Loading...
-                  </p>
-                )}
-              </div>
+              ) : null}
             </div>
+            {confirming && (
+              <div className="flex items-center justify-center">
+                <p className="text-center text-gray-400 animate-bounce">
+                  Loading...
+                </p>
+              </div>
+            )}
           </div>
         </div>
       ) : (

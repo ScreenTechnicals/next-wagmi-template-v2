@@ -13,7 +13,10 @@ export const TodoCard = ({ title, id }: TodoCardProps) => {
       <h2 className="text-base md:text-xl font-medium text-gray-200">
         {title}
       </h2>
-      <Link href={`/todos/${id}`} className="group flex items-center">
+      <Link
+        href={`/example/todo-app/todos/${id}`}
+        className="group flex items-center"
+      >
         <span>View</span>
         <MdArrowForward
           size={25}
